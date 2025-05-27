@@ -1,10 +1,11 @@
 services:
-  web:
+
+  server:
     build:
-      context: .
+      context: ./backend
     image: moonfished-backend:${TAG:-dev}
     env_file:
-      - ${ENV_FILE:-.env.development}
+      - ./backend/.env.production
     ports:
       - "8000:8000"
     depends_on:
@@ -20,17 +21,31 @@ services:
         fi
       "
     volumes:
-      - .:/app
+      - ./backend:/app
 
   db:
     image: postgres
     restart: always
     ports:
-      - "5432:5432"
+      - "5434:5432"
     env_file:
-      - ${ENV_FILE:-.env.development}
+      - ./backend/.env.production
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  client:
+    build:
+      context: ./frontend
+    image: moonfished-frontend:${TAG:-dev}
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env.production
+    depends_on:
+      - server
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
 volumes:
   postgres_data:
