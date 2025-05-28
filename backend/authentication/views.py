@@ -26,20 +26,37 @@ class RegisterView(CreateAPIView):
         refresh_token = str(refresh)
 
         data = {
-            "user": {
+            "message": "User created successfull",
+            "data": {
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
             },
-            "refresh": refresh_token,
-            "access": access_token,
         }
 
-        return Response(data, status=status.HTTP_201_CREATED)
+        response = Response(data, status=status.HTTP_201_CREATED)
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=False,  # Https only
+            samesite='Lax',
+            max_age=3600
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=7 * 24 * 3600
+        )
+
+        return response
 
 
 class LoginView(CreateAPIView):
-    queryset = None  # چون کاربر رو authenticate می‌کنیم، نیازی به queryset نیست
+    queryset = None
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
 
@@ -67,12 +84,12 @@ class LoginView(CreateAPIView):
 class LogoutView(CreateAPIView):
     serializer_class = LogoutSerializer
     permission_classes = (IsAuthenticated,)
-    queryset = None  # نیازی به کوئری ست نیست چون صرفا توکن رو بلاک می‌کنیم
+    queryset = None
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()  # بلاک کردن توکن انجام می‌شود
+        serializer.save()
         return Response(
             {"detail": "Logout successful"}, status=status.HTTP_204_NO_CONTENT
         )
