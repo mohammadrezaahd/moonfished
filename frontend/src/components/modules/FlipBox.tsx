@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { FC, useState, ReactNode } from "react";
+import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const FlipContainer = styled(Box)({
@@ -42,46 +42,25 @@ const Back = styled(CardSide)({
   transform: "rotateY(180deg)",
 });
 
-const Input = styled("input")({
-  width: 250,
-  height: 40,
-  borderRadius: 5,
-  border: "2px solid #323232",
-  backgroundColor: "#fff",
-  boxShadow: "4px 4px #323232",
-  fontSize: 15,
-  fontWeight: 600,
-  color: "#323232",
-  padding: "5px 10px",
-  outline: "none",
-  "::placeholder": {
-    color: "#666",
-    opacity: 0.8,
-  },
-  "&:focus": {
-    border: "2px solid #2d8cf0",
-  },
-});
+interface IFlipBoxProps {
+  title1: string;
+  title2: string;
+  children: [ReactNode, ReactNode];
+}
 
-const SubmitButton = styled("button")({
-  margin: "20px 0",
-  width: 120,
-  height: 40,
-  borderRadius: 5,
-  border: "2px solid #323232",
-  backgroundColor: "#fff",
-  boxShadow: "4px 4px #323232",
-  fontSize: 17,
-  fontWeight: 600,
-  color: "#323232",
-  cursor: "pointer",
-  "&:active": {
-    boxShadow: "0 0 #323232",
-    transform: "translate(3px, 3px)",
-  },
-});
-
-export default function FlipCardAuth() {
+const FlipBox: FC<IFlipBoxProps> = ({
+  title1,
+  title2,
+  children,
+}) => {
+  // Development-time check for children length
+  if (process.env.NODE_ENV !== "production") {
+    if (!Array.isArray(children) || children.length !== 2) {
+      throw new Error(
+        "FlipBox expects exactly 2 children (e.g. <FlipBox>front, back</FlipBox>)"
+      );
+    }
+  }
   const [flipped, setFlipped] = useState(false);
 
   return (
@@ -108,7 +87,7 @@ export default function FlipCardAuth() {
             fontWeight: 600,
           }}
         >
-          Log in
+          {title1}
         </Box>
         <Box
           sx={{
@@ -119,7 +98,7 @@ export default function FlipCardAuth() {
             fontWeight: 600,
           }}
         >
-          Sign up
+          {title2}
         </Box>
         <Box
           sx={{
@@ -152,47 +131,12 @@ export default function FlipCardAuth() {
 
       <FlipContainer>
         <FlipCard flipped={flipped}>
-          <Front>
-            <Typography
-              sx={{ fontSize: 25, fontWeight: 900, color: "#323232", mb: 2 }}
-            >
-              Log in
-            </Typography>
-            <form
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 20,
-              }}
-            >
-              <Input type="email" placeholder="Email" />
-              <Input type="password" placeholder="Password" />
-              <SubmitButton type="submit">Let`s go!</SubmitButton>
-            </form>
-          </Front>
-          <Back>
-            <Typography
-              sx={{ fontSize: 25, fontWeight: 900, color: "#323232", mb: 2 }}
-            >
-              Sign up
-            </Typography>
-            <form
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 20,
-              }}
-            >
-              <Input type="text" placeholder="Name" />
-              <Input type="email" placeholder="Email" />
-              <Input type="password" placeholder="Password" />
-              <SubmitButton type="submit">Confirm!</SubmitButton>
-            </form>
-          </Back>
+          <Front>{children[0]}</Front>
+          <Back>{children[1]}</Back>
         </FlipCard>
       </FlipContainer>
     </Box>
   );
-}
+};
+
+export default FlipBox;

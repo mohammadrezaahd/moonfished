@@ -27,4 +27,32 @@ const creatUser = async (
   }
 };
 
-export const userApi = { creatUser };
+const loginUser = async (
+  username: string,
+  password: string
+): Promise<IApiResponse<IUserGet>> => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/auth/login/`,
+      { username, password },
+      {
+        headers: AXIOS_HEADERS,
+        withCredentials: true,
+      }
+    );
+    if (response.status === 201) {
+      return {
+        data: response.data,
+        message: "User logged-in",
+        succeed: true,
+      };
+    } else {
+      throw new Error("User login failed");
+    }
+  } catch (err) {
+    console.log("Unknown error occurred", err);
+    throw err;
+  }
+};
+
+export const userApi = { creatUser, loginUser };

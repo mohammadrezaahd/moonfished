@@ -1,8 +1,11 @@
 Install dependencies:
     check requirements.txt for manage dependencies based on your OS
 
-Start project:
+Run server:
     local: py manage.py runserver
+
+Start clinet:    
+    local: npm start
 
     docker:
         set env file:
@@ -18,3 +21,4 @@ Migrations:
 
 
 Note: It is recommended to use local service for development mode. Otherwise, set the environment variables according to your system.
+Hint: Run cline commands in frontend directory and server commands in backend directory.

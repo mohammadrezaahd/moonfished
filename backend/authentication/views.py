@@ -70,15 +70,32 @@ class LoginView(CreateAPIView):
         refresh_token = str(refresh)
 
         data = {
+            "message": "User logged-in successfull",
             "user": {
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
             },
-            "refresh": refresh_token,
-            "access": access_token,
         }
-        return Response(data, status=status.HTTP_200_OK)
+        response = Response(data, status=status.HTTP_200_OK)
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=False,  # Https only
+            samesite='Lax',
+            max_age=3600
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=7 * 24 * 3600
+        )
+
+        return response
 
 
 class LogoutView(CreateAPIView):
