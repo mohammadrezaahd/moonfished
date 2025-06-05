@@ -1,27 +1,20 @@
-# مرحله پایه برای توسعه
-FROM node:20
+FROM node:20 as build
 
-# ساخت یک user امن
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
-
-# مسیر کاری
 WORKDIR /app
 
-# کپی فایل‌های dependency و نصب
 COPY package*.json ./
 RUN npm install
 
-# کپی باقی فایل‌ها
 COPY . .
 
-# تغییر مالکیت فایل‌ها برای user امن
-RUN chown -R appuser:appgroup /app
+RUN npm run build
 
-# استفاده از user امن
-USER appuser
 
-# باز کردن پورت لازم برای react
-EXPOSE 3000
+FROM nginx:alpine
 
-# اجرای اپ به‌صورت dev
-CMD ["npm", "start"]
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,34 +1,34 @@
 FROM python:3.11-slim
 
-# Prevent conflicts
+# جلوگیری از تولید فایل‌های .pyc و بافر خروجی
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Create new user and group
+# ایجاد کاربر امن
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# Directory
+# مسیر کاری
 WORKDIR /app
 
-# Install dependencies
+# نصب وابستگی‌های سیستمی مورد نیاز برای psycopg2
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Install changed requirements
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# کپی و نصب پکیج‌های مربوط به production
+COPY requirements/prod.txt .
+RUN pip install --upgrade pip && pip install --no-cache-dir -r prod.txt
 
-# Copy entire project using cache
+# کپی کل پروژه
 COPY . .
 
-# Change user
+# تغییر مالکیت فایل‌ها به کاربر امن
 RUN chown -R appuser:appgroup /app
 
-# Switch to new user
+# سوییچ به کاربر امن
 USER appuser
 
-# Run server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# اجرای دستورات در حالت production
+CMD ["gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]

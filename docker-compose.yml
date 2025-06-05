@@ -38,14 +38,11 @@ services:
       context: ./frontend
     image: moonfished-frontend:${TAG:-dev}
     ports:
-      - "3000:3000"
+      - "3000:80"
     env_file:
-      - ./backend/.env.production
+      - ./frontend/.env.production
     depends_on:
       - server
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
 
 volumes:
   postgres_data:
