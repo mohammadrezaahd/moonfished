@@ -23,7 +23,6 @@ const FlipCard = styled(Box, {
 const CardSide = styled(Box)({
   position: "absolute",
   width: "100%",
-  height: "100%",
   padding: 20,
   display: "flex",
   flexDirection: "column",
@@ -35,6 +34,7 @@ const CardSide = styled(Box)({
   backgroundColor: "lightgrey",
   gap: 20,
   borderRadius: 5,
+  boxSizing: "border-box",
 });
 
 const Front = styled(CardSide)({});
@@ -48,12 +48,7 @@ interface IFlipBoxProps {
   children: [ReactNode, ReactNode];
 }
 
-const FlipBox: FC<IFlipBoxProps> = ({
-  title1,
-  title2,
-  children,
-}) => {
-  // Development-time check for children length
+const FlipBox: FC<IFlipBoxProps> = ({ title1, title2, children }) => {
   if (process.env.NODE_ENV !== "production") {
     if (!Array.isArray(children) || children.length !== 2) {
       throw new Error(
